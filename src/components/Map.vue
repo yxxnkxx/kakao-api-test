@@ -4,10 +4,8 @@
 
     <div id="map" style="width: 500px; height: 400px"></div>
     <div>
-      <form action="">
-        <input type="text" v-model="search" />
-        <button @click="keySearch">검색</button>
-      </form>
+      <input type="text" v-model="search" />
+      <button @click="keySearch()">검색</button>
     </div>
   </div>
 </template>
@@ -45,9 +43,20 @@ export default {
 
         console.log(message);
       });
+    },
+
+    addScript() {
+      const script = document.createElement("script");
+
+      script.onload = () => kakao.maps.load(this.initMap);
+      script.src =
+        "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=e894c36415fadaef2e28d48b5d15ce93&libraries=services,drawing";
+      document.head.appendChild(script);
+    },
+    keySearch() {
       this.ps = new kakao.maps.services.Places();
-      this.infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-      this.ps.keywordSearch("이태원 맛집", placesSearchCB);
+      const infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+      this.ps.keywordSearch(this.search, placesSearchCB);
       const map = this.map;
       // 키워드 검색 완료 시 호출되는 콜백함수 입니다
       function placesSearchCB(data, status) {
@@ -80,23 +89,14 @@ export default {
         // 마커에 클릭이벤트를 등록합니다
         kakao.maps.event.addListener(marker, "click", function () {
           // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
-          this.infowindow.setContent(
+          infowindow.setContent(
             '<div style="padding:5px;font-size:12px;">' +
               place.place_name +
               "</div>"
           );
-          this.infowindow.open(this.map, marker);
+          infowindow.open(map, marker);
         });
       }
-    },
-
-    addScript() {
-      const script = document.createElement("script");
-
-      script.onload = () => kakao.maps.load(this.initMap);
-      script.src =
-        "http://dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=e894c36415fadaef2e28d48b5d15ce93&libraries=services,drawing";
-      document.head.appendChild(script);
     },
   },
 };
